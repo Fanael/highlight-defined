@@ -86,37 +86,44 @@
 
 (defvar highlight-defined--face nil)
 
-(defsubst highlight-defined--matcher-internal (end getunadviseddefinition)
-  (catch 'highlight-defined--matcher-internal
-    (while (re-search-forward "\\_<.+?\\_>" end t)
-      (let ((symbol (intern-soft (buffer-substring-no-properties (match-beginning 0) (match-end 0)))))
-        (when symbol
-          (let ((face (cond
-                       ((fboundp symbol)
-                        (let ((func (funcall getunadviseddefinition (symbol-function symbol))))
-                          (while (symbolp func)
-                            (setq func (symbol-function func)))
-                          (cond
-                           ((subrp func) 'highlight-defined-builtin-function-name-face)
-                           ((eq 'macro (car-safe func)) 'highlight-defined-macro-name-face)
-                           (t 'highlight-defined-function-name-face))))
-                       ((special-variable-p symbol) 'highlight-defined-variable-name-face)
-                       ((facep symbol) 'highlight-defined-face-name-face)
-                       (t nil))))
-            (when face
-              (setq highlight-defined--face face)
-              (throw 'highlight-defined--matcher-internal t))))))
-    nil))
-
-(defconst highlight-defined--get-unadvised-definition
+(defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
   ;; useless unless it's passed a quoted symbol.
   (if (eq 'macro (car-safe (symbol-function 'ad-get-orig-definition)))
       'identity
     'ad-get-orig-definition))
 
+(defsubst highlight-defined--get-unadvised-definition (func)
+  (funcall highlight-defined--get-unadvised-def-func func))
+
+(defsubst highlight-defined--get-orig-definition (symbol)
+  (let ((func (highlight-defined--get-unadvised-definition (symbol-function symbol))))
+    (while (symbolp func)
+      (setq func (symbol-function func)))
+    func))
+
+(defsubst highlight-defined--determine-face (symbol)
+  (cond
+   ((fboundp symbol)
+    (let ((func (highlight-defined--get-orig-definition symbol)))
+      (cond
+       ((subrp func) 'highlight-defined-builtin-function-name-face)
+       ((eq 'macro (car-safe func)) 'highlight-defined-macro-name-face)
+       (t 'highlight-defined-function-name-face))))
+   ((special-variable-p symbol) 'highlight-defined-variable-name-face)
+   ((facep symbol) 'highlight-defined-face-name-face)
+   (t nil)))
+
 (defun highlight-defined--matcher (end)
-  (highlight-defined--matcher-internal end highlight-defined--get-unadvised-definition))
+  (catch 'highlight-defined--matcher
+    (while (re-search-forward "\\_<.+?\\_>" end t)
+      (let ((symbol (intern-soft (buffer-substring-no-properties (match-beginning 0) (match-end 0)))))
+        (when symbol
+          (let ((face (highlight-defined--determine-face symbol)))
+            (when face
+              (setq highlight-defined--face face)
+              (throw 'highlight-defined--matcher t))))))
+    nil))
 
 ;;;###autoload
 (define-minor-mode highlight-defined-mode
