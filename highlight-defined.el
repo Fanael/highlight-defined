@@ -46,8 +46,6 @@
 
 ;;; Code:
 
-(require 'advice)
-
 (defgroup highlight-defined nil
   "Highlight defined Emacs Lisp symbols."
   :prefix "highlight-defined-"
@@ -83,15 +81,16 @@
   :group 'highlight-defined
   :group 'faces)
 
-
-(defvar highlight-defined--face nil)
-
 (defconst highlight-defined--get-unadvised-def-func
-  ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
-  ;; useless unless it's passed a quoted symbol.
-  (if (eq 'macro (car-safe (symbol-function 'ad-get-orig-definition)))
-      'identity
-    'ad-get-orig-definition))
+  (if (and (require 'nadvice nil t)
+           (fboundp 'advice--p)
+           (fboundp 'advice--cdr))
+      (lambda (func)
+        ;; Like `ad-get-orig-definition', but without macro stripping
+        (while (advice--p func)
+          (setq func (advice--cdr func)))
+        func)
+    'identity))
 
 (defsubst highlight-defined--get-unadvised-definition (func)
   (funcall highlight-defined--get-unadvised-def-func func))
@@ -113,6 +112,8 @@
    ((special-variable-p symbol) 'highlight-defined-variable-name-face)
    ((facep symbol) 'highlight-defined-face-name-face)
    (t nil)))
+
+(defvar highlight-defined--face nil)
 
 (defun highlight-defined--matcher (end)
   (catch 'highlight-defined--matcher
