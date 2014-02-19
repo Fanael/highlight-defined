@@ -81,37 +81,50 @@
   :group 'highlight-defined
   :group 'faces)
 
+(require 'advice)
+
 (defconst highlight-defined--get-unadvised-def-func
-  (if (and (require 'nadvice nil t)
-           (fboundp 'advice--p)
-           (fboundp 'advice--cdr))
-      (lambda (func)
-        ;; Like `ad-get-orig-definition', but without macro stripping
-        (while (advice--p func)
-          (setq func (advice--cdr func)))
-        func)
-    'identity))
+  ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
+  ;; useless unless it's passed a quoted symbol.
+  (if (eq 'macro (car-safe (symbol-function 'ad-get-orig-definition)))
+      'identity
+    'ad-get-orig-definition))
 
 (defsubst highlight-defined--get-unadvised-definition (func)
   (funcall highlight-defined--get-unadvised-def-func func))
 
+(defsubst highlight-defined--get-unaliased-definition (func)
+  (while (symbolp func)
+    (setq func (symbol-function func)))
+  func)
+
 (defsubst highlight-defined--get-orig-definition (symbol)
-  (let ((func (highlight-defined--get-unadvised-definition (symbol-function symbol))))
-    (while (symbolp func)
-      (setq func (symbol-function func)))
+  (let* ((func (highlight-defined--get-unaliased-definition symbol))
+         (unadvised (highlight-defined--get-unadvised-definition func)))
+    (while (not (eq func unadvised))
+      (setq func (highlight-defined--get-unaliased-definition unadvised))
+      (setq unadvised (highlight-defined--get-unadvised-definition func)))
     func))
 
 (defsubst highlight-defined--determine-face (symbol)
   (cond
    ((fboundp symbol)
-    (let ((func (highlight-defined--get-orig-definition symbol)))
+    (let ((unaliased (highlight-defined--get-unaliased-definition symbol)))
       (cond
-       ((subrp func) 'highlight-defined-builtin-function-name-face)
-       ((eq 'macro (car-safe func)) 'highlight-defined-macro-name-face)
-       (t 'highlight-defined-function-name-face))))
-   ((special-variable-p symbol) 'highlight-defined-variable-name-face)
-   ((facep symbol) 'highlight-defined-face-name-face)
-   (t nil)))
+       ;; Check for macros before dealing with advices, because
+       ;; `ad-get-orig-definition' strips the macro tag.
+       ((eq 'macro (car-safe unaliased))
+        'highlight-defined-macro-name-face)
+       ((subrp (highlight-defined--get-orig-definition unaliased))
+        'highlight-defined-builtin-function-name-face)
+       (t
+        'highlight-defined-function-name-face))))
+   ((special-variable-p symbol)
+    'highlight-defined-variable-name-face)
+   ((facep symbol)
+    'highlight-defined-face-name-face)
+   (t
+    nil)))
 
 (defvar highlight-defined--face nil)
 
