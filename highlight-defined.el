@@ -76,7 +76,7 @@
   :group 'faces)
 
 (defface highlight-defined-face-name-face
-  '((t :inherit highlight-defined-variable-name-face))
+  '((t :inherit default))
   "Face used to highlight face names."
   :group 'highlight-defined
   :group 'faces)
