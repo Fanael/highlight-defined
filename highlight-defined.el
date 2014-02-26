@@ -2,7 +2,7 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/highlight-defined
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Package-Requires: ((emacs "24"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -94,9 +94,7 @@
   (funcall highlight-defined--get-unadvised-def-func func))
 
 (defsubst highlight-defined--get-unaliased-definition (func)
-  (while (symbolp func)
-    (setq func (symbol-function func)))
-  func)
+  (indirect-function func t))
 
 (defsubst highlight-defined--get-orig-definition (symbol)
   (let* ((func (highlight-defined--get-unaliased-definition symbol))
