@@ -2,7 +2,7 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/highlight-defined
-;; Version: 0.1.2
+;; Version: 0.1.3
 ;; Package-Requires: ((emacs "24"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -83,10 +83,17 @@
 
 (require 'advice)
 
+(defsubst highlight-defined--is-defined-macro-p (func)
+  (eq 'macro (car-safe func)))
+
+(defsubst highlight-defined--is-autoloaded-macro-p (func)
+  (and (eq 'autoload (car-safe func))
+       (memq (nth 4 func) '(macro t))))
+
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
   ;; useless unless it's passed a quoted symbol.
-  (if (eq 'macro (car-safe (symbol-function 'ad-get-orig-definition)))
+  (if (highlight-defined--is-defined-macro-p (symbol-function 'ad-get-orig-definition))
       'identity
     'ad-get-orig-definition))
 
@@ -111,7 +118,8 @@
       (cond
        ;; Check for macros before dealing with advices, because
        ;; `ad-get-orig-definition' strips the macro tag.
-       ((eq 'macro (car-safe unaliased))
+       ((or (highlight-defined--is-defined-macro-p unaliased)
+            (highlight-defined--is-autoloaded-macro-p unaliased))
         'highlight-defined-macro-name-face)
        ((subrp (highlight-defined--get-orig-definition unaliased))
         'highlight-defined-builtin-function-name-face)
