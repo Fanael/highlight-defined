@@ -32,6 +32,7 @@ To turn it on automatically:
 Change the following faces:
  * `highlight-defined-function-name-face`
  * `highlight-defined-builtin-function-name-face`
+ * `highlight-defined-special-form-name-face`
  * `highlight-defined-macro-name-face`
  * `highlight-defined-variable-name-face`
  * `highlight-defined-face-name-face`

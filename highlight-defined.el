@@ -63,6 +63,12 @@
   :group 'highlight-defined
   :group 'faces)
 
+(defface highlight-defined-special-form-name-face
+  '((t :inherit highlight-defined-builtin-function-name-face))
+  "Face used to highlight special form names."
+  :group 'highlight-defined
+  :group 'faces)
+
 (defface highlight-defined-macro-name-face
   '((t :inherit highlight-defined-function-name-face))
   "Face used to highlight macro names."
@@ -81,14 +87,14 @@
   :group 'highlight-defined
   :group 'faces)
 
-(require 'advice)
-
 (defsubst highlight-defined--is-defined-macro-p (func)
   (eq 'macro (car-safe func)))
 
 (defsubst highlight-defined--is-autoloaded-macro-p (func)
   (and (eq 'autoload (car-safe func))
        (memq (nth 4 func) '(macro t))))
+
+(require 'advice)
 
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
@@ -115,16 +121,17 @@
   (cond
    ((fboundp symbol)
     (let ((unaliased (highlight-defined--get-unaliased-definition symbol)))
-      (cond
-       ;; Check for macros before dealing with advices, because
-       ;; `ad-get-orig-definition' strips the macro tag.
-       ((or (highlight-defined--is-defined-macro-p unaliased)
-            (highlight-defined--is-autoloaded-macro-p unaliased))
-        'highlight-defined-macro-name-face)
-       ((subrp (highlight-defined--get-orig-definition unaliased))
-        'highlight-defined-builtin-function-name-face)
-       (t
-        'highlight-defined-function-name-face))))
+      ;; Check for macros before dealing with advices, because
+      ;; `ad-get-orig-definition' strips the macro tag.
+      (if (or (highlight-defined--is-defined-macro-p unaliased)
+              (highlight-defined--is-autoloaded-macro-p unaliased))
+          'highlight-defined-macro-name-face
+        (let ((orig (highlight-defined--get-orig-definition unaliased)))
+          (if (not (subrp orig))
+              'highlight-defined-function-name-face
+            (if (eq 'unevalled (cdr (subr-arity orig)))
+                'highlight-defined-special-form-name-face
+              'highlight-defined-builtin-function-name-face))))))
    ((special-variable-p symbol)
     'highlight-defined-variable-name-face)
    ((facep symbol)
