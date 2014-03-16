@@ -109,13 +109,12 @@
 (defsubst highlight-defined--get-unaliased-definition (func)
   (indirect-function func t))
 
-(defsubst highlight-defined--get-orig-definition (symbol)
-  (let* ((func (highlight-defined--get-unaliased-definition symbol))
-         (unadvised (highlight-defined--get-unadvised-definition func)))
-    (while (not (eq func unadvised))
-      (setq func (highlight-defined--get-unaliased-definition unadvised))
-      (setq unadvised (highlight-defined--get-unadvised-definition func)))
-    func))
+(defsubst highlight-defined--get-orig-definition (func)
+  (let ((unadvised nil)
+        (unaliased func))
+    (while (not (eq (setq unadvised (highlight-defined--get-unadvised-definition unaliased))
+                    (setq unaliased (highlight-defined--get-unaliased-definition unadvised)))))
+    unaliased))
 
 (defsubst highlight-defined--determine-face (symbol)
   (cond
