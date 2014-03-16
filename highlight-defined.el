@@ -87,19 +87,19 @@
   :group 'highlight-defined
   :group 'faces)
 
-(defsubst highlight-defined--is-defined-macro-p (func)
-  (eq 'macro (car-safe func)))
-
-(defsubst highlight-defined--is-autoloaded-macro-p (func)
-  (and (eq 'autoload (car-safe func))
-       (memq (nth 4 func) '(macro t))))
+(defsubst highlight-defined--is-macro-p (func)
+  (when (consp func)
+    (let ((tag (car func)))
+      (or (eq 'macro tag)
+          (and (eq 'autoload tag)
+               (memq (nth 4 func) '(macro t)))))))
 
 (require 'advice)
 
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
   ;; useless unless it's passed a quoted symbol.
-  (if (highlight-defined--is-defined-macro-p (symbol-function 'ad-get-orig-definition))
+  (if (highlight-defined--is-macro-p (symbol-function 'ad-get-orig-definition))
       'identity
     'ad-get-orig-definition))
 
@@ -122,8 +122,7 @@
     (let ((unaliased (highlight-defined--get-unaliased-definition symbol)))
       ;; Check for macros before dealing with advices, because
       ;; `ad-get-orig-definition' strips the macro tag.
-      (if (or (highlight-defined--is-defined-macro-p unaliased)
-              (highlight-defined--is-autoloaded-macro-p unaliased))
+      (if (highlight-defined--is-macro-p unaliased)
           'highlight-defined-macro-name-face
         (let ((orig (highlight-defined--get-orig-definition unaliased)))
           (if (not (subrp orig))
