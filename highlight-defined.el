@@ -88,6 +88,9 @@
   :group 'faces)
 
 (defsubst highlight-defined--is-macro-p (func)
+  "Non-nil iff FUNC is a macro.
+
+FUNC must not be a symbol."
   (when (consp func)
     (let ((tag (car func)))
       (or (eq 'macro tag)
@@ -101,15 +104,25 @@
   ;; useless unless it's passed a quoted symbol.
   (if (highlight-defined--is-macro-p (symbol-function 'ad-get-orig-definition))
       'identity
-    'ad-get-orig-definition))
+    'ad-get-orig-definition)
+  "Function used to get the unadvised definition.")
 
 (defsubst highlight-defined--get-unadvised-definition (func)
+  "Return the unadvised definition of FUNC.
+
+FUNC must not be a symbol nor a macro."
   (funcall highlight-defined--get-unadvised-def-func func))
 
 (defsubst highlight-defined--get-unaliased-definition (func)
+  "Return the function at the end of FUNC's function chain."
   (indirect-function func t))
 
 (defsubst highlight-defined--get-orig-definition (func)
+  "Return the original definition of FUNC.
+This is done by getting rid of any advices and following function
+indirection chains.
+
+FUNC must not be a symbol."
   (let ((unadvised nil)
         (unaliased func))
     (while (not (eq (setq unadvised (highlight-defined--get-unadvised-definition unaliased))
@@ -117,6 +130,8 @@
     unaliased))
 
 (defsubst highlight-defined--determine-face (symbol)
+  "Return the face SYMBOL should be fontified with.
+If SYMBOL is not one of the recognized types, return nil."
   (cond
    ((fboundp symbol)
     (let ((unaliased (highlight-defined--get-unaliased-definition symbol)))
@@ -140,6 +155,7 @@
 (defvar highlight-defined--face nil)
 
 (defun highlight-defined--matcher (end)
+  "The matcher function to be used by Font Lock mode."
   (catch 'highlight-defined--matcher
     (while (re-search-forward "\\_<.+?\\_>" end t)
       (let ((symbol (intern-soft (buffer-substring-no-properties (match-beginning 0) (match-end 0)))))
