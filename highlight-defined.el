@@ -2,7 +2,7 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/highlight-defined
-;; Version: 0.1.3
+;; Version: 0.1.4
 ;; Package-Requires: ((emacs "24"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -184,8 +184,7 @@ the mode if ARG is omitted or nil, and toggle it if ARG is `toggle'."
       (font-lock-add-keywords nil keywords 'append)))
   ;; Refresh font locking.
   (when font-lock-mode
-    (font-lock-mode -1)
-    (font-lock-mode 1)))
+    (font-lock-mode)))
 
 (provide 'highlight-defined)
 ;;; highlight-defined.el ends here
