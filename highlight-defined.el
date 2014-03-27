@@ -2,7 +2,7 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/highlight-defined
-;; Version: 0.1.4
+;; Version: 0.1.5
 ;; Package-Requires: ((emacs "24"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -54,38 +54,32 @@
 (defface highlight-defined-function-name-face
   '((t :inherit font-lock-function-name-face))
   "Face used to highlight function names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defface highlight-defined-builtin-function-name-face
   '((t :inherit highlight-defined-function-name-face))
   "Face used to highlight built-in function names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defface highlight-defined-special-form-name-face
   '((t :inherit highlight-defined-builtin-function-name-face))
   "Face used to highlight special form names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defface highlight-defined-macro-name-face
   '((t :inherit highlight-defined-function-name-face))
   "Face used to highlight macro names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defface highlight-defined-variable-name-face
   '((t :inherit font-lock-variable-name-face))
   "Face used to highlight variable names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defface highlight-defined-face-name-face
   '((t :inherit default))
   "Face used to highlight face names."
-  :group 'highlight-defined
-  :group 'faces)
+  :group 'highlight-defined)
 
 (defsubst highlight-defined--is-macro-p (func)
   "Non-nil iff FUNC is a macro.
