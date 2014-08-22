@@ -178,7 +178,9 @@ the mode if ARG is omitted or nil, and toggle it if ARG is `toggle'."
       (font-lock-add-keywords nil keywords 'append)))
   ;; Refresh font locking.
   (when font-lock-mode
-    (font-lock-mode)))
+    (if (fboundp 'font-lock-flush)
+        (font-lock-flush)
+      (font-lock-mode))))
 
 (provide 'highlight-defined)
 ;;; highlight-defined.el ends here
