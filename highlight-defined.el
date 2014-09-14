@@ -78,7 +78,7 @@
   "Face used to highlight face names."
   :group 'highlight-defined)
 
-(defsubst highlight-defined--is-macro-p (func)
+(defun highlight-defined--is-macro-p (func)
   "Non-nil iff FUNC is a macro.
 
 FUNC must not be a symbol."
@@ -98,17 +98,17 @@ FUNC must not be a symbol."
     'ad-get-orig-definition)
   "Function used to get the unadvised definition.")
 
-(defsubst highlight-defined--get-unadvised-definition (func)
+(defun highlight-defined--get-unadvised-definition (func)
   "Return the unadvised definition of FUNC.
 
 FUNC must not be a symbol nor a macro."
   (funcall highlight-defined--get-unadvised-def-func func))
 
-(defsubst highlight-defined--get-unaliased-definition (func)
+(defun highlight-defined--get-unaliased-definition (func)
   "Return the function at the end of FUNC's function chain."
   (indirect-function func t))
 
-(defsubst highlight-defined--get-orig-definition (func)
+(defun highlight-defined--get-orig-definition (func)
   "Return the original definition of FUNC.
 This is done by getting rid of any advices and following function
 indirection chains.
@@ -120,7 +120,7 @@ FUNC must not be a symbol."
                     (setq unaliased (highlight-defined--get-unaliased-definition unadvised)))))
     unaliased))
 
-(defsubst highlight-defined--determine-face (symbol)
+(defun highlight-defined--determine-face (symbol)
   "Return the face SYMBOL should be fontified with.
 If SYMBOL is not one of the recognized types, return nil."
   (cond
