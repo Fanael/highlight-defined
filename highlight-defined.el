@@ -42,6 +42,7 @@
 ;; To enable call `highlight-defined-mode'.
 
 ;;; Code:
+(require 'advice)
 
 (defgroup highlight-defined nil
   "Highlight defined Emacs Lisp symbols."
@@ -87,8 +88,6 @@ FUNC must not be a symbol."
       (or (eq 'macro tag)
           (and (eq 'autoload tag)
                (memq (nth 4 func) '(macro t)))))))
-
-(require 'advice)
 
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
