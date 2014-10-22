@@ -1,3 +1,6 @@
+[![Melpa Status](http://melpa.milkbox.net/packages/highlight-defined-badge.svg)](http://melpa.milkbox.net/#/highlight-defined)
+[![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/highlight-defined-badge.svg)](http://melpa-stable.milkbox.net/#/highlight-defined)
+
 # highlight-defined
 
 `highlight-defined` is an Emacs minor mode that highlights defined
