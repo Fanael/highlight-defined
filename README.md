@@ -1,5 +1,5 @@
-[![Melpa Status](http://melpa.milkbox.net/packages/highlight-defined-badge.svg)](http://melpa.milkbox.net/#/highlight-defined)
-[![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/highlight-defined-badge.svg)](http://melpa-stable.milkbox.net/#/highlight-defined)
+[![Melpa Status](http://melpa.org/packages/highlight-defined-badge.svg)](http://melpa.org/#/highlight-defined)
+[![Melpa Stable Status](http://stable.melpa.org/packages/highlight-defined-badge.svg)](http://stable.melpa.org/#/highlight-defined)
 
 # highlight-defined
 
@@ -11,7 +11,7 @@ and variable names.
 
 ## Installation
 
-The package is available in [MELPA](http://melpa.milkbox.net/).
+The package is available in [MELPA](http://melpa.org/).
 
 If you have MELPA in `package-archives`, use
 
