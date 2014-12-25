@@ -92,9 +92,9 @@ FUNC must not be a symbol."
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
   ;; useless unless it's passed a quoted symbol.
-  (if (highlight-defined--is-macro-p (symbol-function 'ad-get-orig-definition))
-      'identity
-    'ad-get-orig-definition)
+  (if (highlight-defined--is-macro-p (symbol-function #'ad-get-orig-definition))
+      #'identity
+    #'ad-get-orig-definition)
   "Function used to get the unadvised definition.")
 
 (defun highlight-defined--get-unadvised-definition (func)
