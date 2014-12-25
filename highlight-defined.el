@@ -97,16 +97,6 @@ FUNC must not be a symbol."
     #'ad-get-orig-definition)
   "Function used to get the unadvised definition.")
 
-(defun highlight-defined--get-unadvised-definition (func)
-  "Return the unadvised definition of FUNC.
-
-FUNC must not be a symbol nor a macro."
-  (funcall highlight-defined--get-unadvised-def-func func))
-
-(defun highlight-defined--get-unaliased-definition (func)
-  "Return the function at the end of FUNC's function chain."
-  (indirect-function func t))
-
 (defun highlight-defined--get-orig-definition (func)
   "Return the original definition of FUNC.
 This is done by getting rid of any advices and following function
@@ -115,8 +105,8 @@ indirection chains.
 FUNC must not be a symbol."
   (let ((unadvised nil)
         (unaliased func))
-    (while (not (eq (setq unadvised (highlight-defined--get-unadvised-definition unaliased))
-                    (setq unaliased (highlight-defined--get-unaliased-definition unadvised)))))
+    (while (not (eq (setq unadvised (funcall highlight-defined--get-unadvised-def-func unaliased))
+                    (setq unaliased (indirect-function unadvised t)))))
     unaliased))
 
 (defun highlight-defined--determine-face (symbol)
@@ -124,7 +114,7 @@ FUNC must not be a symbol."
 If SYMBOL is not one of the recognized types, return nil."
   (cond
    ((fboundp symbol)
-    (let ((unaliased (highlight-defined--get-unaliased-definition symbol)))
+    (let ((unaliased (indirect-function symbol t)))
       ;; Check for macros before dealing with advices, because
       ;; `ad-get-orig-definition' strips the macro tag.
       (if (highlight-defined--is-macro-p unaliased)
