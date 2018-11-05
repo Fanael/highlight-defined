@@ -39,3 +39,5 @@ Change the following faces:
  * `highlight-defined-macro-name-face`
  * `highlight-defined-variable-name-face`
  * `highlight-defined-face-name-face`
+
+If you want to highlight face name by the face itself, set `highlight-defined-face-use-itself` to a non-nil value.
