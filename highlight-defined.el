@@ -79,6 +79,12 @@
   "Face used to highlight face names."
   :group 'highlight-defined)
 
+(defcustom highlight-defined-face-use-itself
+  nil
+  "Non-nil means highlight face name by the face itself instead of `highlight-defined-face-name-face'"
+  :group 'highlight-defined
+  :type 'boolean)
+
 (defun highlight-defined--is-macro-p (func)
   "Non-nil iff FUNC is a macro.
 
@@ -125,10 +131,12 @@ If SYMBOL is not one of the recognized types, return nil."
             (if (eq 'unevalled (cdr (subr-arity orig)))
                 'highlight-defined-special-form-name-face
               'highlight-defined-builtin-function-name-face))))))
+   ((facep symbol)
+    (if highlight-defined-face-use-itself
+        symbol
+      'highlight-defined-face-name-face))
    ((special-variable-p symbol)
     'highlight-defined-variable-name-face)
-   ((facep symbol)
-    'highlight-defined-face-name-face)
    (t
     nil)))
 
