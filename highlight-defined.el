@@ -2,12 +2,12 @@
 
 ;; Author: Fanael Linithien <fanael4@gmail.com>
 ;; URL: https://github.com/Fanael/highlight-defined
-;; Version: 0.1.5
+;; Version: 0.1.6
 ;; Package-Requires: ((emacs "24"))
 
 ;; This file is NOT part of GNU Emacs.
 
-;; Copyright (c) 2014, Fanael Linithien
+;; Copyright (c) 2014-2021, Fanael Linithien
 ;; All rights reserved.
 ;;
 ;; Redistribution and use in source and binary forms, with or without
@@ -95,6 +95,12 @@ FUNC must not be a symbol."
           (and (eq 'autoload tag)
                (memq (nth 4 func) '(macro t)))))))
 
+(defalias 'highlight-defined--subr-compiled-p
+  (if (fboundp 'subr-native-elisp-p)
+      #'subr-native-elisp-p
+    (lambda (_func) nil))
+  "Non-nil iff FUNC is a Lisp function compiled to native code.")
+
 (defconst highlight-defined--get-unadvised-def-func
   ;; In Emacs < 24.4 `ad-get-orig-definition' is a macro that's
   ;; useless unless it's passed a quoted symbol.
@@ -126,7 +132,7 @@ If SYMBOL is not one of the recognized types, return nil."
       (if (highlight-defined--is-macro-p unaliased)
           'highlight-defined-macro-name-face
         (let ((orig (highlight-defined--get-orig-definition unaliased)))
-          (if (not (subrp orig))
+          (if (or (not (subrp orig)) (highlight-defined--subr-compiled-p orig))
               'highlight-defined-function-name-face
             (if (eq 'unevalled (cdr (subr-arity orig)))
                 'highlight-defined-special-form-name-face
